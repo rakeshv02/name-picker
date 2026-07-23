@@ -1,109 +1,181 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ROI Calculator — Return on Investment | Tabutility</title>
-  <meta name="description" content="Calculate return on investment (ROI), annualised return, and profit/loss for any investment. Simple and detailed ROI analysis." />
-  <meta name="keywords" content="roi calculator, return on investment, investment return, annualised return, profit calculator" />
-  <link rel="canonical" href="https://roi.tabutility.com/" />
-  <meta property="og:title" content="ROI Calculator — Return on Investment" />
-  <meta property="og:description" content="Calculate ROI, annualised return and profit for any investment instantly." />
-  <meta property="og:type" content="website" />
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📈</text></svg>" />
-  <meta name="robots" content="index, follow" />
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7039091592734005" crossorigin="anonymous"></script>
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-78VZWJ5B1W"></script>
-  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-78VZWJ5B1W');</script>
-  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Spin the Wheel — Random Name Picker — Tabutility</title>
+<meta name="description" content="Free spin the wheel name picker. Add names, spin, and get a random winner. Great for classrooms, giveaways and decisions."/>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-78VZWJ5B1W"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-78VZWJ5B1W');</script>
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7039091592734005" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f172a;color:#f1f5f9;min-height:100vh}nav{background:#1e293b;border-bottom:1px solid #334155;padding:14px 24px;display:flex;align-items:center;gap:16px}nav a{color:#94a3b8;text-decoration:none;font-size:14px}nav a:hover{color:#f1f5f9}nav .brand{color:#38bdf8;font-weight:700;font-size:18px}.ad-banner{background:#1e293b;border-bottom:1px solid #334155;padding:8px;text-align:center}</style>
 </head>
-<body style="margin:0;background:#f8faff;font-family:'Segoe UI',Arial,sans-serif">
+<body>
+<nav><span class="brand">⚡ Tabutility</span><a href="https://tabutility.com">← All Tools</a></nav>
+<div class="ad-banner"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-7039091592734005" data-ad-slot="auto" data-ad-format="auto" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
 <div id="root"></div>
 <script type="text/babel">
 //<![CDATA[
-const { useState } = React;
-function fmt(n){return '$'+Math.abs(Math.round(n)).toLocaleString();}
-function fmtPct(n){return (n>=0?'+':'')+n.toFixed(2)+'%';}
+const { useState, useRef, useEffect } = React;
 
-function App() {
-  const [initial, setInitial] = useState(10000);
-  const [final, setFinal] = useState(14500);
-  const [years, setYears] = useState(3);
-  const [fees, setFees] = useState(0);
+const PALETTE = ['#ef4444','#f97316','#eab308','#22c55e','#06b6d4','#3b82f6','#8b5cf6','#ec4899','#14b8a6','#f59e0b','#84cc16','#a855f7'];
 
-  const inv = Number(initial)||0;
-  const fin = Number(final)||0;
-  const yrs = Number(years)||1;
-  const fee = Number(fees)||0;
+function drawWheel(canvas, names, rotation) {
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width; const H = canvas.height;
+  const cx = W/2; const cy = H/2; const r = Math.min(cx,cy) - 10;
+  ctx.clearRect(0,0,W,H);
+  if (names.length === 0) {
+    ctx.fillStyle = '#334155'; ctx.beginPath(); ctx.arc(cx,cy,r,0,2*Math.PI); ctx.fill();
+    ctx.fillStyle = '#64748b'; ctx.font = '16px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('Add names to spin', cx, cy);
+    return;
+  }
+  const slice = (2 * Math.PI) / names.length;
+  names.forEach((name, i) => {
+    const start = rotation + i * slice;
+    const end = start + slice;
+    ctx.beginPath(); ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,r,start,end);
+    ctx.closePath();
+    ctx.fillStyle = PALETTE[i % PALETTE.length];
+    ctx.fill();
+    ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 2; ctx.stroke();
 
-  const netFinal = fin - fee;
-  const profit = netFinal - inv;
-  const roi = inv > 0 ? (profit / inv * 100) : 0;
-  const annualised = inv > 0 && yrs > 0 ? (Math.pow(netFinal/inv, 1/yrs)-1)*100 : 0;
-  const positive = profit >= 0;
+    ctx.save();
+    ctx.translate(cx,cy);
+    ctx.rotate(start + slice/2);
+    ctx.textAlign = 'right';
+    ctx.fillStyle = '#fff';
+    ctx.font = `bold ${Math.min(16, 140/names.length + 8)}px sans-serif`;
+    const maxLen = 14;
+    const label = name.length > maxLen ? name.slice(0,maxLen)+'…' : name;
+    ctx.fillText(label, r - 12, 5);
+    ctx.restore();
+  });
+  // Center dot
+  ctx.beginPath(); ctx.arc(cx,cy,16,0,2*Math.PI); ctx.fillStyle='#1e293b'; ctx.fill();
+  ctx.strokeStyle='#475569'; ctx.lineWidth=2; ctx.stroke();
+}
+
+export default function NamePicker() {
+  const [names, setNames] = useState(['Alice','Bob','Charlie','Diana','Edward','Fiona']);
+  const [input, setInput] = useState('');
+  const [rotation, setRotation] = useState(0);
+  const [spinning, setSpinning] = useState(false);
+  const [winner, setWinner] = useState(null);
+  const [history, setHistory] = useState([]);
+  const canvasRef = useRef(null);
+  const animRef = useRef(null);
+
+  useEffect(() => {
+    if (canvasRef.current) drawWheel(canvasRef.current, names, rotation);
+  }, [names, rotation]);
+
+  const spin = () => {
+    if (spinning || names.length < 2) return;
+    setWinner(null);
+    const extraSpins = 5 + Math.random() * 5;
+    const extraAngle = Math.random() * 2 * Math.PI;
+    const totalAngle = extraSpins * 2 * Math.PI + extraAngle;
+    const duration = 3000 + Math.random() * 1000;
+    const startTime = performance.now();
+    const startRot = rotation;
+    setSpinning(true);
+
+    const animate = (now) => {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const ease = 1 - Math.pow(1 - progress, 4);
+      const currentRot = startRot + totalAngle * ease;
+      setRotation(currentRot);
+      if (progress < 1) {
+        animRef.current = requestAnimationFrame(animate);
+      } else {
+        const finalRot = currentRot;
+        const slice = (2 * Math.PI) / names.length;
+        const normalised = ((-(finalRot % (2*Math.PI))) + 2*Math.PI) % (2*Math.PI);
+        const winnerIdx = Math.floor(normalised / slice) % names.length;
+        const w = names[winnerIdx];
+        setWinner(w);
+        setHistory(h => [w, ...h.slice(0,9)]);
+        setSpinning(false);
+      }
+    };
+    animRef.current = requestAnimationFrame(animate);
+  };
+
+  const addName = () => {
+    const n = input.trim();
+    if (n && !names.includes(n)) { setNames(prev => [...prev, n]); setInput(''); setWinner(null); }
+  };
+
+  const removeName = (name) => { setNames(prev => prev.filter(x => x !== name)); setWinner(null); };
 
   return (
-    <div style={{maxWidth:520,margin:'0 auto',paddingBottom:40}}>
-      <div style={{background:'#1a1a2e',padding:'12px 20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-        <a href="https://tabutility.com" style={{color:'#a5b4fc',textDecoration:'none',fontSize:14}}>← All Tools</a>
-        <span style={{color:'#fff',fontWeight:700,fontSize:15}}>⚡ Tabutility</span>
-      </div>
-      <div style={{background:'linear-gradient(135deg,#0891b2,#0e7490)',padding:'28px 20px',textAlign:'center',color:'#fff'}}>
-        <div style={{fontSize:36,marginBottom:8}}>📈</div>
-        <h1 style={{margin:'0 0 6px',fontSize:22,fontWeight:900}}>ROI Calculator</h1>
-        <p style={{margin:0,fontSize:13,opacity:0.85}}>Return on investment · annualised return · profit/loss</p>
-      </div>
-      <div style={{padding:20}}>
-        <div style={{background:'#fff',borderRadius:14,padding:20,boxShadow:'0 2px 12px rgba(0,0,0,0.06)',marginBottom:16}}>
-          {[['Initial Investment','$',initial,setInitial],['Final Value','$',final,setFinal],['Fees / Costs','$',fees,setFees]].map(([label,prefix,val,setter])=>(
-            <div key={label} style={{marginBottom:14}}>
-              <label style={{fontSize:13,fontWeight:600,color:'#374151',display:'block',marginBottom:6}}>{label}</label>
-              <div style={{position:'relative'}}>
-                <span style={{position:'absolute',left:12,top:'50%',transform:'translateY(-50%)',color:'#6b7280'}}>{prefix}</span>
-                <input type="number" value={val} onChange={e=>setter(e.target.value)}
-                  style={{width:'100%',padding:'11px 12px 11px 28px',borderRadius:10,border:'2px solid #e5e7eb',fontSize:16,boxSizing:'border-box'}} />
-              </div>
-            </div>
-          ))}
-          <div>
-            <label style={{fontSize:13,fontWeight:600,color:'#374151',display:'block',marginBottom:6}}>Investment Period (years)</label>
-            <input type="number" value={years} onChange={e=>setYears(e.target.value)} min={0.1} step={0.5}
-              style={{width:'100%',padding:'11px 12px',borderRadius:10,border:'2px solid #e5e7eb',fontSize:16,boxSizing:'border-box'}} />
+    <div style={{maxWidth:800,margin:'40px auto',padding:'0 20px'}}>
+      <h1 style={{textAlign:'center',fontSize:28,fontWeight:700,marginBottom:8}}>Spin the Wheel</h1>
+      <p style={{textAlign:'center',color:'#94a3b8',marginBottom:32}}>Random name picker — add names, spin, get a winner</p>
+
+      <div style={{display:'grid',gridTemplateColumns:'1fr 320px',gap:24,alignItems:'start'}}>
+        <div style={{textAlign:'center'}}>
+          <div style={{position:'relative',display:'inline-block'}}>
+            <canvas ref={canvasRef} width={320} height={320} style={{borderRadius:'50%',display:'block'}}/>
+            {/* Pointer */}
+            <div style={{position:'absolute',top:'50%',right:-12,transform:'translateY(-50%)',width:0,height:0,borderTop:'14px solid transparent',borderBottom:'14px solid transparent',borderRight:'28px solid #f1f5f9'}}/>
           </div>
-        </div>
-
-        <div style={{background: positive?'#f0fdf4':'#fef2f2',borderRadius:14,padding:24,textAlign:'center',marginBottom:16,boxShadow:'0 2px 12px rgba(0,0,0,0.06)'}}>
-          <div style={{fontSize:13,fontWeight:600,color:'#6b7280',marginBottom:4}}>TOTAL ROI</div>
-          <div style={{fontSize:52,fontWeight:900,color: positive?'#059669':'#dc2626'}}>{fmtPct(roi)}</div>
-          <div style={{fontSize:15,color: positive?'#059669':'#dc2626',fontWeight:700}}>{positive?'+':''}{fmt(profit)} {positive?'profit':'loss'}</div>
-        </div>
-
-        <div style={{background:'#fff',borderRadius:14,padding:20,boxShadow:'0 2px 12px rgba(0,0,0,0.06)'}}>
-          {[
-            ['Initial Investment', fmt(inv)],
-            ['Final Value (before fees)', fmt(fin)],
-            ['Fees / Transaction Costs', fee > 0 ? '-'+fmt(fee) : '$0'],
-            ['Net Final Value', fmt(netFinal)],
-            ['Net Profit / Loss', (positive?'+':'-')+fmt(profit)],
-            ['Total ROI', fmtPct(roi)],
-            ['Annualised Return (CAGR)', fmtPct(annualised)+' / yr'],
-          ].map(([l,v])=>(
-            <div key={l} style={{display:'flex',justifyContent:'space-between',padding:'9px 0',borderBottom:'1px solid #f0f0f0',fontSize:14}}>
-              <span style={{color:'#6b7280'}}>{l}</span>
-              <strong style={{color: l.includes('Loss')||l.includes('Fees')&&fee>0?'#dc2626':l.includes('ROI')||l.includes('Profit')||l.includes('CAGR')?positive?'#059669':'#dc2626':'#1a1a2e'}}>{v}</strong>
+          <button onClick={spin} disabled={spinning || names.length < 2}
+            style={{marginTop:20,background:spinning||names.length<2?'#334155':'#38bdf8',color:spinning||names.length<2?'#64748b':'#0f172a',border:'none',borderRadius:14,padding:'14px 48px',fontSize:20,fontWeight:700,cursor:spinning||names.length<2?'not-allowed':'pointer',transition:'background 0.2s'}}>
+            {spinning ? 'Spinning…' : 'SPIN'}
+          </button>
+          {winner && (
+            <div style={{marginTop:16,background:'#1e293b',borderRadius:14,padding:'16px 24px',border:'2px solid #38bdf8'}}>
+              <div style={{fontSize:13,color:'#64748b',marginBottom:4}}>🎉 WINNER</div>
+              <div style={{fontSize:28,fontWeight:700,color:'#38bdf8'}}>{winner}</div>
             </div>
-          ))}
+          )}
         </div>
-        <div style={{background:'#ecfeff',borderRadius:12,padding:16,marginTop:16,fontSize:13,color:'#0e7490',lineHeight:1.6}}>
-          <strong>CAGR</strong> (Compound Annual Growth Rate) is the annualised ROI — useful when comparing investments held for different time periods.
+
+        <div>
+          <div style={{background:'#1e293b',borderRadius:16,padding:16,border:'1px solid #334155',marginBottom:16}}>
+            <h2 style={{fontSize:15,fontWeight:600,marginBottom:12}}>Names ({names.length})</h2>
+            <div style={{display:'flex',gap:8,marginBottom:12}}>
+              <input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==='Enter'&&addName()} placeholder="Add a name…"
+                style={{flex:1,background:'#0f172a',color:'#f1f5f9',border:'1px solid #334155',borderRadius:8,padding:'8px',fontSize:14}}/>
+              <button onClick={addName} style={{background:'#38bdf8',color:'#0f172a',border:'none',borderRadius:8,padding:'8px 14px',fontWeight:700,cursor:'pointer'}}>+</button>
+            </div>
+            <div style={{maxHeight:280,overflowY:'auto'}}>
+              {names.map((name,i) => (
+                <div key={name} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'7px 10px',borderRadius:8,marginBottom:4,background:'#0f172a'}}>
+                  <div style={{display:'flex',alignItems:'center',gap:8}}>
+                    <div style={{width:10,height:10,borderRadius:'50%',background:PALETTE[i%PALETTE.length]}}/>
+                    <span style={{fontSize:14}}>{name}</span>
+                  </div>
+                  <button onClick={()=>removeName(name)} style={{background:'none',border:'none',color:'#475569',cursor:'pointer',fontSize:16}}>✕</button>
+                </div>
+              ))}
+            </div>
+            <button onClick={()=>{setNames([]);setWinner(null);}} style={{width:'100%',marginTop:8,background:'none',border:'1px solid #334155',color:'#94a3b8',borderRadius:8,padding:'7px',fontSize:13,cursor:'pointer'}}>Clear all</button>
+          </div>
+
+          {history.length > 0 && (
+            <div style={{background:'#1e293b',borderRadius:16,padding:16,border:'1px solid #334155'}}>
+              <h2 style={{fontSize:15,fontWeight:600,marginBottom:10}}>History</h2>
+              {history.map((h,i) => (
+                <div key={i} style={{fontSize:14,color:i===0?'#38bdf8':'#64748b',padding:'3px 0'}}>{i===0?'🏆':` ${i}.`} {h}</div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
-ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+
+ReactDOM.createRoot(document.getElementById('root')).render(<NamePicker />);
 //]]>
 </script>
 </body>
