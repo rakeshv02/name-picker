@@ -8,175 +8,305 @@
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-78VZWJ5B1W"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-78VZWJ5B1W');</script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7039091592734005" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f172a;color:#f1f5f9;min-height:100vh}nav{background:#1e293b;border-bottom:1px solid #334155;padding:14px 24px;display:flex;align-items:center;gap:16px}nav a{color:#94a3b8;text-decoration:none;font-size:14px}nav a:hover{color:#f1f5f9}nav .brand{color:#38bdf8;font-weight:700;font-size:18px}.ad-banner{background:#1e293b;border-bottom:1px solid #334155;padding:8px;text-align:center}</style>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f172a;color:#f1f5f9;min-height:100vh}
+nav{background:#1e293b;border-bottom:1px solid #334155;padding:14px 24px;display:flex;align-items:center;gap:16px}
+nav a{color:#94a3b8;text-decoration:none;font-size:14px}nav a:hover{color:#f1f5f9}
+nav .brand{color:#38bdf8;font-weight:700;font-size:18px}
+.ad-banner{background:#1e293b;border-bottom:1px solid #334155;padding:8px;text-align:center}
+#app{max-width:840px;margin:40px auto;padding:0 20px}
+h1{font-size:28px;font-weight:700;margin-bottom:8px;text-align:center}
+.subtitle{color:#94a3b8;margin-bottom:28px;text-align:center}
+.layout{display:grid;grid-template-columns:360px 1fr;gap:24px;align-items:start}
+@media(max-width:680px){.layout{grid-template-columns:1fr}}
+.wheel-col{display:flex;flex-direction:column;align-items:center}
+.wheel-wrap{position:relative;width:340px;height:340px;flex-shrink:0}
+#wheel-canvas{display:block;border-radius:50%}
+/* pointer: downward-pointing triangle at top-centre */
+.pointer{position:absolute;top:-10px;left:50%;transform:translateX(-50%);
+  width:0;height:0;
+  border-left:12px solid transparent;
+  border-right:12px solid transparent;
+  border-top:26px solid #f1f5f9;
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,.5));
+  z-index:10}
+#spin-btn{margin-top:16px;background:#38bdf8;color:#0f172a;border:none;border-radius:14px;
+  padding:13px 52px;font-size:19px;font-weight:700;cursor:pointer;transition:opacity .2s}
+#spin-btn:disabled{opacity:.4;cursor:not-allowed}
+#winner-box{margin-top:14px;background:#1e293b;border-radius:14px;padding:14px 28px;
+  border:2px solid #38bdf8;text-align:center;display:none;width:100%;max-width:340px}
+#winner-label{font-size:13px;color:#64748b;margin-bottom:4px}
+#winner-name{font-size:26px;font-weight:700;color:#38bdf8;word-break:break-word}
+.panel{background:#1e293b;border-radius:16px;padding:16px;border:1px solid #334155;margin-bottom:14px}
+.panel h2{font-size:15px;font-weight:600;margin-bottom:12px}
+.add-row{display:flex;gap:8px;margin-bottom:10px}
+.add-row input{flex:1;background:#0f172a;color:#f1f5f9;border:1px solid #334155;border-radius:8px;padding:8px 10px;font-size:14px}
+.add-row input::placeholder{color:#475569}
+.add-row button{background:#38bdf8;color:#0f172a;border:none;border-radius:8px;
+  padding:8px 14px;font-weight:700;cursor:pointer;font-size:17px;flex-shrink:0}
+#names-list{max-height:280px;overflow-y:auto}
+.name-row{display:flex;align-items:center;padding:6px 8px;border-radius:8px;margin-bottom:4px;background:#0f172a}
+.name-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-right:8px}
+.name-text{font-size:14px;flex:1}
+.name-remove{background:none;border:none;color:#475569;cursor:pointer;font-size:16px;padding:0 4px;line-height:1}
+.name-remove:hover{color:#ef4444}
+#clear-btn{width:100%;margin-top:8px;background:none;border:1px solid #334155;color:#94a3b8;
+  border-radius:8px;padding:7px;font-size:13px;cursor:pointer}
+.hist-row{font-size:14px;padding:3px 0}
+#history-panel{display:none}
+</style>
 </head>
 <body>
 <nav><span class="brand">⚡ Tabutility</span><a href="https://tabutility.com">← All Tools</a></nav>
 <div class="ad-banner"><ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-7039091592734005" data-ad-slot="auto" data-ad-format="auto" data-full-width-responsive="true"></ins><script>(adsbygoogle=window.adsbygoogle||[]).push({});</script></div>
-<div id="root"></div>
-<script type="text/babel">
-//<![CDATA[
-const { useState, useRef, useEffect } = React;
+<div id="app">
+  <h1>Spin the Wheel</h1>
+  <p class="subtitle">Random name picker — add names, spin, get a winner</p>
+  <div class="layout">
+    <div class="wheel-col">
+      <div class="wheel-wrap">
+        <div class="pointer"></div>
+        <canvas id="wheel-canvas" width="340" height="340"></canvas>
+      </div>
+      <button id="spin-btn" onclick="doSpin()">SPIN</button>
+      <div id="winner-box">
+        <div id="winner-label">🎉 WINNER</div>
+        <div id="winner-name"></div>
+      </div>
+    </div>
+    <div>
+      <div class="panel">
+        <h2 id="names-heading">Names (6)</h2>
+        <div class="add-row">
+          <input id="name-input" placeholder="Add a name…" onkeydown="if(event.key==='Enter')addName()"/>
+          <button onclick="addName()">+</button>
+        </div>
+        <div id="names-list"></div>
+        <button id="clear-btn" onclick="clearAll()">Clear all</button>
+      </div>
+      <div class="panel" id="history-panel">
+        <h2>History</h2>
+        <div id="history-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+var PALETTE = ['#ef4444','#f97316','#eab308','#22c55e','#06b6d4','#3b82f6','#8b5cf6','#ec4899','#14b8a6','#f59e0b','#84cc16','#a855f7'];
+var names = ['Alice','Bob','Charlie','Diana','Edward','Fiona'];
+// currentAngle = current rotation of slice[0]'s start, in radians
+// The pointer is at TOP = -PI/2 (i.e., 12 o'clock = -90 degrees from positive x-axis)
+var currentAngle = 0;
+var spinning = false;
+var rafId = null;
+var historyArr = [];
 
-const PALETTE = ['#ef4444','#f97316','#eab308','#22c55e','#06b6d4','#3b82f6','#8b5cf6','#ec4899','#14b8a6','#f59e0b','#84cc16','#a855f7'];
+var canvas = document.getElementById('wheel-canvas');
+var ctx = canvas.getContext('2d');
+var spinBtn = document.getElementById('spin-btn');
+var winnerBox = document.getElementById('winner-box');
+var winnerNameEl = document.getElementById('winner-name');
+var namesHeading = document.getElementById('names-heading');
+var namesListEl = document.getElementById('names-list');
+var histPanel = document.getElementById('history-panel');
+var histList = document.getElementById('history-list');
+var nameInput = document.getElementById('name-input');
 
-function drawWheel(canvas, names, rotation) {
-  const ctx = canvas.getContext('2d');
-  const W = canvas.width; const H = canvas.height;
-  const cx = W/2; const cy = H/2; const r = Math.min(cx,cy) - 10;
-  ctx.clearRect(0,0,W,H);
+var CX = canvas.width / 2;   // 170
+var CY = canvas.height / 2;  // 170
+var R  = CX - 8;              // 162
+
+function drawWheel() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
   if (names.length === 0) {
-    ctx.fillStyle = '#334155'; ctx.beginPath(); ctx.arc(cx,cy,r,0,2*Math.PI); ctx.fill();
-    ctx.fillStyle = '#64748b'; ctx.font = '16px sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText('Add names to spin', cx, cy);
+    ctx.fillStyle = '#334155';
+    ctx.beginPath(); ctx.arc(CX, CY, R, 0, 2*Math.PI); ctx.fill();
+    ctx.fillStyle = '#94a3b8'; ctx.font = '16px sans-serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('Add names to spin', CX, CY);
     return;
   }
-  const slice = (2 * Math.PI) / names.length;
-  names.forEach((name, i) => {
-    const start = rotation + i * slice;
-    const end = start + slice;
-    ctx.beginPath(); ctx.moveTo(cx,cy);
-    ctx.arc(cx,cy,r,start,end);
+
+  var n = names.length;
+  var slice = (2 * Math.PI) / n;
+
+  for (var i = 0; i < n; i++) {
+    var startAngle = currentAngle + i * slice;
+    var endAngle   = startAngle + slice;
+
+    // Slice
+    ctx.beginPath();
+    ctx.moveTo(CX, CY);
+    ctx.arc(CX, CY, R, startAngle, endAngle);
     ctx.closePath();
     ctx.fillStyle = PALETTE[i % PALETTE.length];
     ctx.fill();
-    ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.strokeStyle = '#0f172a';
+    ctx.lineWidth = 2;
+    ctx.stroke();
 
+    // Label
+    var midAngle = startAngle + slice / 2;
     ctx.save();
-    ctx.translate(cx,cy);
-    ctx.rotate(start + slice/2);
+    ctx.translate(CX, CY);
+    ctx.rotate(midAngle);
     ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
     ctx.fillStyle = '#fff';
-    ctx.font = `bold ${Math.min(16, 140/names.length + 8)}px sans-serif`;
-    const maxLen = 14;
-    const label = name.length > maxLen ? name.slice(0,maxLen)+'…' : name;
-    ctx.fillText(label, r - 12, 5);
+    var fontSize = Math.max(10, Math.min(16, Math.floor(130 / n) + 6));
+    ctx.font = 'bold ' + fontSize + 'px sans-serif';
+    var label = names[i].length > 14 ? names[i].slice(0, 13) + '…' : names[i];
+    ctx.fillText(label, R - 10, 0);
     ctx.restore();
+  }
+
+  // Centre hub
+  ctx.beginPath(); ctx.arc(CX, CY, 14, 0, 2*Math.PI);
+  ctx.fillStyle = '#1e293b'; ctx.fill();
+  ctx.strokeStyle = '#475569'; ctx.lineWidth = 2; ctx.stroke();
+}
+
+function getWinnerIndex() {
+  // Pointer is at the TOP = angle -PI/2 (or equivalently 3*PI/2).
+  // Slice i spans [currentAngle + i*slice, currentAngle + (i+1)*slice].
+  // Normalise pointer angle relative to wheel's starting angle.
+  var n = names.length;
+  var slice = (2 * Math.PI) / n;
+  var POINTER_ANGLE = -Math.PI / 2; // top of circle
+
+  // How far is the pointer from the wheel's reference angle?
+  var diff = POINTER_ANGLE - currentAngle;
+  // Normalise to [0, 2*PI)
+  diff = ((diff % (2*Math.PI)) + 2*Math.PI) % (2*Math.PI);
+  // Which slice index?
+  var idx = Math.floor(diff / slice) % n;
+  return idx;
+}
+
+function doSpin() {
+  if (spinning || names.length < 2) return;
+  spinning = true;
+  winnerBox.style.display = 'none';
+  spinBtn.disabled = true;
+  spinBtn.textContent = 'Spinning…';
+
+  // Choose a random winner index and calculate how many radians to spin
+  var n = names.length;
+  var slice = (2 * Math.PI) / n;
+  var winnerIdx = Math.floor(Math.random() * n);
+
+  // Target angle: currentAngle adjusted so winnerIdx lands at top
+  // We want: currentAngle + winnerIdx*slice + slice/2 ≡ -PI/2 (mod 2PI)
+  // => delta such that slot centre = pointer
+  var POINTER_ANGLE = -Math.PI / 2;
+  // Current centre of winnerIdx slot:
+  var slotCentre = currentAngle + winnerIdx * slice + slice / 2;
+  // We need to rotate by delta so slotCentre + delta = POINTER_ANGLE + k*2PI for some integer k
+  var delta = POINTER_ANGLE - slotCentre;
+  // Normalise delta to (0, 2*PI] so we always spin forward
+  delta = ((delta % (2*Math.PI)) + 2*Math.PI) % (2*Math.PI);
+  if (delta < 0.1) delta += 2*Math.PI; // ensure at least a tiny spin
+  // Add several full rotations for drama
+  var fullTurns = (5 + Math.floor(Math.random() * 4)) * 2 * Math.PI;
+  var totalAngle = fullTurns + delta;
+
+  var duration = 3500 + Math.random() * 1000;
+  var startTime = null;
+  var startAngle = currentAngle;
+
+  function animate(ts) {
+    if (!startTime) startTime = ts;
+    var elapsed = ts - startTime;
+    var t = Math.min(elapsed / duration, 1);
+    // Ease out quart
+    var ease = 1 - Math.pow(1 - t, 4);
+    currentAngle = startAngle + totalAngle * ease;
+    drawWheel();
+
+    if (t < 1) {
+      rafId = requestAnimationFrame(animate);
+    } else {
+      // Snap to exact final angle
+      currentAngle = startAngle + totalAngle;
+      drawWheel();
+
+      var idx = getWinnerIndex();
+      winnerNameEl.textContent = names[idx];
+      winnerBox.style.display = 'block';
+
+      historyArr.unshift(names[idx]);
+      if (historyArr.length > 10) historyArr.pop();
+      renderHistory();
+
+      spinning = false;
+      spinBtn.disabled = names.length < 2;
+      spinBtn.textContent = 'SPIN';
+    }
+  }
+  rafId = requestAnimationFrame(animate);
+}
+
+function renderNamesList() {
+  namesHeading.textContent = 'Names (' + names.length + ')';
+  namesListEl.innerHTML = '';
+  for (var i = 0; i < names.length; i++) {
+    (function(name, idx) {
+      var row = document.createElement('div'); row.className = 'name-row';
+      var dot = document.createElement('div'); dot.className = 'name-dot';
+      dot.style.background = PALETTE[idx % PALETTE.length];
+      var txt = document.createElement('span'); txt.className = 'name-text'; txt.textContent = name;
+      var rm = document.createElement('button'); rm.className = 'name-remove'; rm.textContent = '✕';
+      rm.onclick = function() { removeName(name); };
+      row.appendChild(dot); row.appendChild(txt); row.appendChild(rm);
+      namesListEl.appendChild(row);
+    })(names[i], i);
+  }
+  spinBtn.disabled = names.length < 2;
+}
+
+function addName() {
+  var val = nameInput.value.trim();
+  if (!val) return;
+  // Allow duplicates only if name doesn't already exist
+  if (names.indexOf(val) !== -1) { nameInput.select(); return; }
+  names.push(val);
+  nameInput.value = '';
+  winnerBox.style.display = 'none';
+  renderNamesList();
+  drawWheel();
+}
+
+function removeName(name) {
+  var idx = names.indexOf(name);
+  if (idx !== -1) names.splice(idx, 1);
+  winnerBox.style.display = 'none';
+  renderNamesList();
+  drawWheel();
+}
+
+function clearAll() {
+  names = [];
+  winnerBox.style.display = 'none';
+  renderNamesList();
+  drawWheel();
+}
+
+function renderHistory() {
+  if (!historyArr.length) { histPanel.style.display = 'none'; return; }
+  histPanel.style.display = 'block';
+  histList.innerHTML = '';
+  historyArr.forEach(function(h, i) {
+    var row = document.createElement('div'); row.className = 'hist-row';
+    row.style.color = i === 0 ? '#38bdf8' : '#64748b';
+    row.textContent = (i === 0 ? '🏆 ' : (i+1)+'. ') + h;
+    histList.appendChild(row);
   });
-  // Center dot
-  ctx.beginPath(); ctx.arc(cx,cy,16,0,2*Math.PI); ctx.fillStyle='#1e293b'; ctx.fill();
-  ctx.strokeStyle='#475569'; ctx.lineWidth=2; ctx.stroke();
 }
 
-export default function NamePicker() {
-  const [names, setNames] = useState(['Alice','Bob','Charlie','Diana','Edward','Fiona']);
-  const [input, setInput] = useState('');
-  const [rotation, setRotation] = useState(0);
-  const [spinning, setSpinning] = useState(false);
-  const [winner, setWinner] = useState(null);
-  const [history, setHistory] = useState([]);
-  const canvasRef = useRef(null);
-  const animRef = useRef(null);
-
-  useEffect(() => {
-    if (canvasRef.current) drawWheel(canvasRef.current, names, rotation);
-  }, [names, rotation]);
-
-  const spin = () => {
-    if (spinning || names.length < 2) return;
-    setWinner(null);
-    const extraSpins = 5 + Math.random() * 5;
-    const extraAngle = Math.random() * 2 * Math.PI;
-    const totalAngle = extraSpins * 2 * Math.PI + extraAngle;
-    const duration = 3000 + Math.random() * 1000;
-    const startTime = performance.now();
-    const startRot = rotation;
-    setSpinning(true);
-
-    const animate = (now) => {
-      const elapsed = now - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const ease = 1 - Math.pow(1 - progress, 4);
-      const currentRot = startRot + totalAngle * ease;
-      setRotation(currentRot);
-      if (progress < 1) {
-        animRef.current = requestAnimationFrame(animate);
-      } else {
-        const finalRot = currentRot;
-        const slice = (2 * Math.PI) / names.length;
-        const normalised = ((-(finalRot % (2*Math.PI))) + 2*Math.PI) % (2*Math.PI);
-        const winnerIdx = Math.floor(normalised / slice) % names.length;
-        const w = names[winnerIdx];
-        setWinner(w);
-        setHistory(h => [w, ...h.slice(0,9)]);
-        setSpinning(false);
-      }
-    };
-    animRef.current = requestAnimationFrame(animate);
-  };
-
-  const addName = () => {
-    const n = input.trim();
-    if (n && !names.includes(n)) { setNames(prev => [...prev, n]); setInput(''); setWinner(null); }
-  };
-
-  const removeName = (name) => { setNames(prev => prev.filter(x => x !== name)); setWinner(null); };
-
-  return (
-    <div style={{maxWidth:800,margin:'40px auto',padding:'0 20px'}}>
-      <h1 style={{textAlign:'center',fontSize:28,fontWeight:700,marginBottom:8}}>Spin the Wheel</h1>
-      <p style={{textAlign:'center',color:'#94a3b8',marginBottom:32}}>Random name picker — add names, spin, get a winner</p>
-
-      <div style={{display:'grid',gridTemplateColumns:'1fr 320px',gap:24,alignItems:'start'}}>
-        <div style={{textAlign:'center'}}>
-          <div style={{position:'relative',display:'inline-block'}}>
-            <canvas ref={canvasRef} width={320} height={320} style={{borderRadius:'50%',display:'block'}}/>
-            {/* Pointer */}
-            <div style={{position:'absolute',top:'50%',right:-12,transform:'translateY(-50%)',width:0,height:0,borderTop:'14px solid transparent',borderBottom:'14px solid transparent',borderRight:'28px solid #f1f5f9'}}/>
-          </div>
-          <button onClick={spin} disabled={spinning || names.length < 2}
-            style={{marginTop:20,background:spinning||names.length<2?'#334155':'#38bdf8',color:spinning||names.length<2?'#64748b':'#0f172a',border:'none',borderRadius:14,padding:'14px 48px',fontSize:20,fontWeight:700,cursor:spinning||names.length<2?'not-allowed':'pointer',transition:'background 0.2s'}}>
-            {spinning ? 'Spinning…' : 'SPIN'}
-          </button>
-          {winner && (
-            <div style={{marginTop:16,background:'#1e293b',borderRadius:14,padding:'16px 24px',border:'2px solid #38bdf8'}}>
-              <div style={{fontSize:13,color:'#64748b',marginBottom:4}}>🎉 WINNER</div>
-              <div style={{fontSize:28,fontWeight:700,color:'#38bdf8'}}>{winner}</div>
-            </div>
-          )}
-        </div>
-
-        <div>
-          <div style={{background:'#1e293b',borderRadius:16,padding:16,border:'1px solid #334155',marginBottom:16}}>
-            <h2 style={{fontSize:15,fontWeight:600,marginBottom:12}}>Names ({names.length})</h2>
-            <div style={{display:'flex',gap:8,marginBottom:12}}>
-              <input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==='Enter'&&addName()} placeholder="Add a name…"
-                style={{flex:1,background:'#0f172a',color:'#f1f5f9',border:'1px solid #334155',borderRadius:8,padding:'8px',fontSize:14}}/>
-              <button onClick={addName} style={{background:'#38bdf8',color:'#0f172a',border:'none',borderRadius:8,padding:'8px 14px',fontWeight:700,cursor:'pointer'}}>+</button>
-            </div>
-            <div style={{maxHeight:280,overflowY:'auto'}}>
-              {names.map((name,i) => (
-                <div key={name} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'7px 10px',borderRadius:8,marginBottom:4,background:'#0f172a'}}>
-                  <div style={{display:'flex',alignItems:'center',gap:8}}>
-                    <div style={{width:10,height:10,borderRadius:'50%',background:PALETTE[i%PALETTE.length]}}/>
-                    <span style={{fontSize:14}}>{name}</span>
-                  </div>
-                  <button onClick={()=>removeName(name)} style={{background:'none',border:'none',color:'#475569',cursor:'pointer',fontSize:16}}>✕</button>
-                </div>
-              ))}
-            </div>
-            <button onClick={()=>{setNames([]);setWinner(null);}} style={{width:'100%',marginTop:8,background:'none',border:'1px solid #334155',color:'#94a3b8',borderRadius:8,padding:'7px',fontSize:13,cursor:'pointer'}}>Clear all</button>
-          </div>
-
-          {history.length > 0 && (
-            <div style={{background:'#1e293b',borderRadius:16,padding:16,border:'1px solid #334155'}}>
-              <h2 style={{fontSize:15,fontWeight:600,marginBottom:10}}>History</h2>
-              {history.map((h,i) => (
-                <div key={i} style={{fontSize:14,color:i===0?'#38bdf8':'#64748b',padding:'3px 0'}}>{i===0?'🏆':` ${i}.`} {h}</div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-ReactDOM.createRoot(document.getElementById('root')).render(<NamePicker />);
-//]]>
+renderNamesList();
+drawWheel();
 </script>
 </body>
 </html>
